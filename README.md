@@ -32,7 +32,7 @@ The mod preserves the normal ritual flow: the player teleports near the selected
 ## Installation
 
 1. Install GHMod for Green Hell.
-2. Place `RitualNavigator_0.5.1.ghmod` in the GHMod mods directory.
+2. Place `RitualNavigator_0.5.2.ghmod` in the GHMod mods directory.
 3. Enable the mod in GHMod.
 4. Start or load a Story-mode save.
 
@@ -64,7 +64,7 @@ The action requires confirmation to avoid accidental item creation. The torch ar
 
 ## Compatibility
 
-Version 0.5.1 was developed and tested in Green Hell Story mode with GHMod. Multiplayer and non-Story modes are intentionally outside the supported scope.
+Version 0.5.2 was developed and tested in Green Hell Story mode with GHMod. Multiplayer and non-Story modes are intentionally outside the supported scope.
 
 ## License
 

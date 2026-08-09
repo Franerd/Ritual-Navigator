@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.2 - 2026-08-09
+
+- Added the GHMod-supported `icon` and `banner` metadata fields.
+- Added the official GHMod version endpoint to prevent `Unknown` version display.
+- Renamed the internal mod class and source file to `RitualNavigator`.
+- Kept the banner and icon embedded in the `.ghmod` package.
+
 ## 0.5.1 - 2026-08-09
 
 - Added the official Ritual Navigator banner and icon.
