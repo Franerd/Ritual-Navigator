@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class RitualNavigator : Mod
 {
-    private const string Version = "0.5.2";
+    private const string Version = "0.5.3";
     private const string Ritual3UnlockHash = "-1834927741";
     private const string Ritual4UnlockHash = "1211834070";
     private const float TorchDeliveryWindowSeconds = 30f;

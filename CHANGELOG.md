@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.3 - 2026-08-09
+
+- Resized and reframed the banner to the GHMod-recommended 660 x 200 pixels.
+- Resized the square launcher icon to 512 x 512 pixels.
+- Reduced embedded artwork size while preserving the approved visual identity.
+
 ## 0.5.2 - 2026-08-09
 
 - Added the GHMod-supported `icon` and `banner` metadata fields.
