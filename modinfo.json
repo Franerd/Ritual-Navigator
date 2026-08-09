@@ -1,0 +1,11 @@
+{
+  "name": "Ritual Navigator",
+  "author": "FraNerd",
+  "description": "Replay Green Hell's four Story rituals through their native altars, with progression-aware access, prerequisite navigation, required materials, and safe return controls.",
+  "version": "0.5.0",
+  "license": "All rights reserved",
+  "gameVersion": "1.0",
+  "updateUrl": "",
+  "isModPermanent": false,
+  "excludedFiles": []
+}
