@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1 - 2026-08-09
+
+- Added the official Ritual Navigator banner and icon.
+- Embedded both visual assets in the GHMod package.
+- Updated release documentation and package metadata.
+
 ## 0.5.0 - 2026-08-09
 
 - Added a progression-aware menu for the four Story rituals.
@@ -12,4 +18,3 @@
 - Added native Green Hell cursor handling and player-input blocking.
 - Added the English, nearly transparent release menu.
 - Removed development probes and reduced runtime logging.
-
