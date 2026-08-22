@@ -7,7 +7,6 @@
 - Added important destinations for the later Story regions, including Bamboo Bridge, Anaconda Island, Airport, Omega Camp, and Yabahuaca Village.
 - Calibrated exact positions and facing directions for the Jeep, upper Gold Mine elevator, Plane Crash, and Lambda-2 from in-game captures.
 - Added terrain-height adjustment for destinations that still use GPS-to-world conversion.
-- Added an exact-location capture button that records position, facing, rotation, and converted GPS coordinates to the game log.
 - Preserved progression-aware access for Rituals 3 and 4, the pre-teleport snapshot, and safe return controls.
 - Fixed GHMod artwork metadata to load the embedded `icon.png` and `banner.png` files directly.
 - Verified the embedded icon at 512 x 512 and banner at 660 x 200 pixels.

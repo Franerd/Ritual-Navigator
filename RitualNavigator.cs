@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Reflection;
 using UnityEngine;
 
@@ -420,7 +419,6 @@ public class RitualNavigator : Mod
         if (IsProgressionHashTrue(Ritual3UnlockHash)) visible.Add(22);
         if (IsProgressionHashTrue(Ritual4UnlockHash)) visible.Add(23);
         visible.Add(5);
-        visible.Add(9);
         visible.Add(6);
         visible.Add(7);
         return visible;
@@ -683,11 +681,6 @@ public class RitualNavigator : Mod
             EmergencyRestore();
             SetRitualMenuOpen(false, "return_action");
         }
-        else if (option == 9)
-        {
-            CaptureExactLocation();
-            SetRitualMenuOpen(false, "exact_location_capture");
-        }
         else
         {
             SetRitualMenuOpen(false, "menu_close_action");
@@ -706,34 +699,8 @@ public class RitualNavigator : Mod
         if (option >= 100 && option <= 103) return "Teleport to Ritual " + (option - 99) + " Altar";
         if (option >= 200 && option < 200 + m_StoryLocationLabels.Length) return m_StoryLocationLabels[option - 200];
         if (option == 299) return "<  Back to Rituals";
-        if (option == 9) return "Capture Exact Location to Log";
         if (option == 5 && m_MaterialDropArmed) return "CONFIRM: Drop Required Materials";
         return option >= 0 && option < m_RitualMenuLabels.Length ? m_RitualMenuLabels[option] : "Unknown";
-    }
-
-    private void CaptureExactLocation()
-    {
-        Bind();
-        if (m_Player == null)
-        {
-            Debug.Log("[RitualNavigator] EXACT_LOCATION_CAPTURE_FAILED reason=player_missing");
-            return;
-        }
-        Vector3 position = m_Player.transform.position;
-        Vector3 forward = m_Player.transform.forward;
-        Quaternion rotation = m_Player.transform.rotation;
-        float west = 57.5f - (position.x / 40.8185f);
-        float south = 64.5f - (position.z / 36.4861f);
-        Debug.Log("[RitualNavigator] EXACT_LOCATION_CAPTURE " +
-            "position=(" + FormatExact(position.x) + "," + FormatExact(position.y) + "," + FormatExact(position.z) + ") " +
-            "forward=(" + FormatExact(forward.x) + "," + FormatExact(forward.y) + "," + FormatExact(forward.z) + ") " +
-            "rotation=(" + FormatExact(rotation.x) + "," + FormatExact(rotation.y) + "," + FormatExact(rotation.z) + "," + FormatExact(rotation.w) + ") " +
-            "gps=" + west.ToString("F3", CultureInfo.InvariantCulture) + "W," + south.ToString("F3", CultureInfo.InvariantCulture) + "S");
-    }
-
-    private string FormatExact(float value)
-    {
-        return value.ToString("F3", CultureInfo.InvariantCulture);
     }
 
     private void TeleportToStoryLocation(int locationIndex)

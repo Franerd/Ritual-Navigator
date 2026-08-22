@@ -29,8 +29,6 @@ The mod preserves the normal ritual flow: the player teleports near the selected
 | `Shift` + `F7` | Return to the saved pre-teleport position |
 | `F7` | Safely stop an active dream sequence |
 
-The main menu also includes **Capture Exact Location to Log**, which records the current position and facing direction for future destination calibration.
-
 `F9` and `F10` are intentionally left untouched because GHMod uses them.
 
 ## Installation
@@ -66,7 +64,6 @@ The action requires confirmation to avoid accidental item creation. The torch ar
 - It does not provide an infinite-burning torch.
 - Ritual completion remains controlled by Green Hell.
 - Story-location teleporting does not grant quest items or change progression flags.
-- The main menu can capture the player's exact position and facing direction to the game log for destination calibration.
 
 ## Compatibility
 
