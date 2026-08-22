@@ -1,12 +1,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using UnityEngine;
 
 public class RitualNavigator : Mod
 {
-    private const string Version = "0.5.3";
+    private const string Version = "0.6.7-beta";
     private const string Ritual3UnlockHash = "-1834927741";
     private const string Ritual4UnlockHash = "1211834070";
     private const float TorchDeliveryWindowSeconds = 30f;
@@ -23,6 +24,7 @@ public class RitualNavigator : Mod
     private Vector3 m_ArrivalTargetPos;
     private Vector3 m_ArrivalTargetForward;
     private bool m_RitualMenuOpen;
+    private int m_MenuSection = -1;
     private int m_RitualMenuSelection;
     private bool m_MaterialDropArmed;
     private float m_MaterialDropArmUntil;
@@ -74,6 +76,29 @@ public class RitualNavigator : Mod
         new Vector3(1398.26f, 94.50f, 1141.85f),
         new Vector3(1071.94f, 94.22f, 1062.88f)
     };
+    private readonly string[] m_StoryLocationLabels = new string[]
+    {
+        "Drug Facility (51W 27S)",
+        "Fishing Dock / Pier (51W 19S)",
+        "Overturned Jeep (44W 16.5S)",
+        "Gold Mine Elevator - Upper Level (40W 18S)",
+        "Plane Crash Cave (40W 24S)",
+        "Lambda-2 (41W 26S)",
+        "Bamboo Bridge (37W 20S)",
+        "Anaconda Island (35W 25S)",
+        "Airport (29W 22S)",
+        "Omega Camp (25W 33S)",
+        "Yabahuaca Village (31W 36S)"
+    };
+    private readonly Vector2[] m_StoryGpsCoordinates = new Vector2[]
+    {
+        new Vector2(51f, 27f), new Vector2(51f, 19f),
+        new Vector2(44f, 16.5f), new Vector2(40f, 18f),
+        new Vector2(40f, 24f), new Vector2(41f, 26f),
+        new Vector2(37f, 20f), new Vector2(35f, 25f),
+        new Vector2(29f, 22f), new Vector2(25f, 33f),
+        new Vector2(31f, 36f)
+    };
 
     public void Start()
     {
@@ -124,7 +149,15 @@ public class RitualNavigator : Mod
             if (Input.GetKeyDown(KeyCode.UpArrow)) m_RitualMenuSelection = (m_RitualMenuSelection + visible.Count - 1) % visible.Count;
             if (Input.GetKeyDown(KeyCode.DownArrow)) m_RitualMenuSelection = (m_RitualMenuSelection + 1) % visible.Count;
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ExecuteRitualMenuOption(visible[m_RitualMenuSelection]);
-            if (Input.GetKeyDown(KeyCode.Escape)) SetRitualMenuOpen(false, "Escape");
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (m_MenuSection >= 0)
+                {
+                    m_MenuSection = -1;
+                    m_RitualMenuSelection = 0;
+                }
+                else SetRitualMenuOpen(false, "Escape");
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.F7) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
@@ -152,12 +185,12 @@ public class RitualNavigator : Mod
         float y = (Screen.height - height) * 0.5f;
         GUI.Box(new Rect(x, y, width, height), GUIContent.none, m_MenuPanelStyle);
         GUI.DrawTexture(new Rect(x + 20f, y + 25f, 3f, height - 50f), m_MenuAccentTexture);
-        GUI.Label(new Rect(x + 42f, y + 22f, width - 68f, 34f), "RITUALS", m_MenuTitleStyle);
+        GUI.Label(new Rect(x + 42f, y + 22f, width - 68f, 34f), GetMenuTitle(), m_MenuTitleStyle);
         GUI.Label(new Rect(x + 42f, y + 58f, width - 68f, 24f), "Mouse or Arrow Keys + Enter  |  F5/Esc to close", m_MenuHintStyle);
         for (int i = 0; i < visible.Count; i++)
         {
             int option = visible[i];
-            string label = (option == 5 && m_MaterialDropArmed) ? "CONFIRM: Drop Required Materials" : m_RitualMenuLabels[option];
+            string label = GetMenuOptionLabel(option);
             bool selected = i == m_RitualMenuSelection;
             string text = (selected ? ">  " : "   ") + label;
             GUIStyle style = selected ? m_MenuButtonSelectedStyle : m_MenuButtonStyle;
@@ -211,6 +244,7 @@ public class RitualNavigator : Mod
         if (open)
         {
             m_RitualMenuSelection = 0;
+            m_MenuSection = -1;
             if (!m_CursorStateSaved)
             {
                 m_PreviousCursorLockMode = Cursor.lockState;
@@ -376,13 +410,17 @@ public class RitualNavigator : Mod
 
     private List<int> GetVisibleMenuOptions()
     {
+        if (m_MenuSection == 0) return new List<int>() { 0, 100, 200, 201, 202, 203, 204, 205, 299 };
+        if (m_MenuSection == 1) return new List<int>() { 101, 206, 207, 208, 299 };
+        if (m_MenuSection == 2) return new List<int>() { 102, 209, 299 };
+        if (m_MenuSection == 3) return new List<int>() { 103, 210, 299 };
         List<int> visible = new List<int>();
-        visible.Add(0);
-        visible.Add(1);
-        visible.Add(2);
-        if (IsProgressionHashTrue(Ritual3UnlockHash)) visible.Add(3);
-        if (IsProgressionHashTrue(Ritual4UnlockHash)) visible.Add(4);
+        visible.Add(20);
+        visible.Add(21);
+        if (IsProgressionHashTrue(Ritual3UnlockHash)) visible.Add(22);
+        if (IsProgressionHashTrue(Ritual4UnlockHash)) visible.Add(23);
         visible.Add(5);
+        visible.Add(9);
         visible.Add(6);
         visible.Add(7);
         return visible;
@@ -593,6 +631,30 @@ public class RitualNavigator : Mod
 
     private void ExecuteRitualMenuOption(int option)
     {
+        if (option >= 20 && option <= 23)
+        {
+            m_MenuSection = option - 20;
+            m_RitualMenuSelection = 0;
+            return;
+        }
+        if (option >= 100 && option <= 103)
+        {
+            TeleportToRitual(option - 100);
+            SetRitualMenuOpen(false, "ritual_action");
+            return;
+        }
+        if (option >= 200 && option < 200 + m_StoryGpsCoordinates.Length)
+        {
+            TeleportToStoryLocation(option - 200);
+            SetRitualMenuOpen(false, "story_location_action");
+            return;
+        }
+        if (option == 299)
+        {
+            m_MenuSection = -1;
+            m_RitualMenuSelection = 0;
+            return;
+        }
         if (option == 0)
         {
             TeleportToRitualOnePrerequisite();
@@ -621,10 +683,134 @@ public class RitualNavigator : Mod
             EmergencyRestore();
             SetRitualMenuOpen(false, "return_action");
         }
+        else if (option == 9)
+        {
+            CaptureExactLocation();
+            SetRitualMenuOpen(false, "exact_location_capture");
+        }
         else
         {
             SetRitualMenuOpen(false, "menu_close_action");
         }
+    }
+
+    private string GetMenuTitle()
+    {
+        if (m_MenuSection < 0) return "RITUAL NAVIGATOR";
+        return "RITUAL " + (m_MenuSection + 1) + " / MAP";
+    }
+
+    private string GetMenuOptionLabel(int option)
+    {
+        if (option >= 20 && option <= 23) return "Ritual " + (option - 19) + " / Map Destinations  >";
+        if (option >= 100 && option <= 103) return "Teleport to Ritual " + (option - 99) + " Altar";
+        if (option >= 200 && option < 200 + m_StoryLocationLabels.Length) return m_StoryLocationLabels[option - 200];
+        if (option == 299) return "<  Back to Rituals";
+        if (option == 9) return "Capture Exact Location to Log";
+        if (option == 5 && m_MaterialDropArmed) return "CONFIRM: Drop Required Materials";
+        return option >= 0 && option < m_RitualMenuLabels.Length ? m_RitualMenuLabels[option] : "Unknown";
+    }
+
+    private void CaptureExactLocation()
+    {
+        Bind();
+        if (m_Player == null)
+        {
+            Debug.Log("[RitualNavigator] EXACT_LOCATION_CAPTURE_FAILED reason=player_missing");
+            return;
+        }
+        Vector3 position = m_Player.transform.position;
+        Vector3 forward = m_Player.transform.forward;
+        Quaternion rotation = m_Player.transform.rotation;
+        float west = 57.5f - (position.x / 40.8185f);
+        float south = 64.5f - (position.z / 36.4861f);
+        Debug.Log("[RitualNavigator] EXACT_LOCATION_CAPTURE " +
+            "position=(" + FormatExact(position.x) + "," + FormatExact(position.y) + "," + FormatExact(position.z) + ") " +
+            "forward=(" + FormatExact(forward.x) + "," + FormatExact(forward.y) + "," + FormatExact(forward.z) + ") " +
+            "rotation=(" + FormatExact(rotation.x) + "," + FormatExact(rotation.y) + "," + FormatExact(rotation.z) + "," + FormatExact(rotation.w) + ") " +
+            "gps=" + west.ToString("F3", CultureInfo.InvariantCulture) + "W," + south.ToString("F3", CultureInfo.InvariantCulture) + "S");
+    }
+
+    private string FormatExact(float value)
+    {
+        return value.ToString("F3", CultureInfo.InvariantCulture);
+    }
+
+    private void TeleportToStoryLocation(int locationIndex)
+    {
+        Bind();
+        if (m_Player == null) { Debug.Log("[SceneExplorer] STORY_TELEPORT_BLOCKED reason=player_missing"); return; }
+        if (IsDreamActive()) { Debug.Log("[SceneExplorer] STORY_TELEPORT_BLOCKED reason=dream_active"); return; }
+        if (locationIndex < 0 || locationIndex >= m_StoryGpsCoordinates.Length) return;
+        try
+        {
+            SaveReturnSnapshot();
+            Vector2 gps = m_StoryGpsCoordinates[locationIndex];
+            Vector3 target = GpsToWorldPosition(gps.x, gps.y);
+            MethodInfo reposition = FindRepositionMethod(m_Player.GetType());
+            if (reposition == null) { Debug.Log("[SceneExplorer] STORY_TELEPORT_BLOCKED reason=Reposition_missing"); return; }
+            Vector3 forward = m_Player.transform.forward;
+            forward.y = 0f;
+            if (locationIndex == 2)
+            {
+                target = new Vector3(533.061f, 130.307f, 1740.740f);
+                forward = new Vector3(-0.329f, 0f, 0.944f);
+            }
+            else if (locationIndex == 3)
+            {
+                target = new Vector3(682.038f, 118.148f, 1679.622f);
+                forward = new Vector3(-0.035f, 0f, 0.999f);
+            }
+            else if (locationIndex == 4)
+            {
+                target = new Vector3(694.760f, 123.510f, 1486.346f);
+                forward = new Vector3(0.970f, 0f, -0.244f);
+            }
+            else if (locationIndex == 5)
+            {
+                target = new Vector3(633.757f, 133.016f, 1427.676f);
+                forward = new Vector3(0.997f, 0f, -0.082f);
+            }
+            if (forward.sqrMagnitude < 0.001f) forward = Vector3.forward;
+            forward.Normalize();
+            ParameterInfo[] parameters = reposition.GetParameters();
+            Debug.Log("[SceneExplorer] STORY_TELEPORT_BEGIN location=\"" + m_StoryLocationLabels[locationIndex] +
+                "\" gps=" + gps + " target=" + target + " snapshotPos=" + m_SnapshotPos);
+            if (parameters.Length == 2) reposition.Invoke(m_Player, new object[] { target, forward });
+            else reposition.Invoke(m_Player, new object[] { target });
+            Debug.Log("[SceneExplorer] STORY_TELEPORT_APPLIED location=\"" + m_StoryLocationLabels[locationIndex] +
+                "\" currentPos=" + m_Player.transform.position + " return=menu_or_Shift+F7");
+        }
+        catch (Exception ex) { Debug.Log("[SceneExplorer] STORY_TELEPORT_FAILED index=" + locationIndex + " " + ex); }
+    }
+
+    private void SaveReturnSnapshot()
+    {
+        if (m_SnapshotValid || m_Player == null) return;
+        m_SnapshotPos = m_Player.transform.position;
+        m_SnapshotRot = m_Player.transform.rotation;
+        m_SnapshotValid = true;
+    }
+
+    private Vector3 GpsToWorldPosition(float west, float south)
+    {
+        const float westScale = 40.8185f;
+        const float southScale = 36.4861f;
+        float x = ((west - 57f) * westScale * -1f) + (westScale * 0.5f);
+        float z = ((south - 64f) * southScale * -1f) + (southScale * 0.5f);
+        float y = 5f;
+        Terrain[] terrains = Terrain.activeTerrains;
+        for (int i = 0; i < terrains.Length; i++)
+        {
+            Terrain terrain = terrains[i];
+            if (terrain == null || terrain.terrainData == null) continue;
+            Vector3 origin = terrain.transform.position;
+            Vector3 size = terrain.terrainData.size;
+            if (x < origin.x || x > origin.x + size.x || z < origin.z || z > origin.z + size.z) continue;
+            y = terrain.SampleHeight(new Vector3(x, origin.y, z)) + origin.y + 0.75f;
+            break;
+        }
+        return new Vector3(x, y, z);
     }
 
     private void TeleportToRitualOnePrerequisite()
